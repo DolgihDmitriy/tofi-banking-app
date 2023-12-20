@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="auth-form mt-4">
+        <h6 class="mb-4">Уже есть аккаунт?<span class="float-end"><a class="text-decoration-none text-dark" href="{% url 'login' %}">Войти</a></span></h6>
+        <div class="form-error">{{ form.non_field_errors }}</div>
+        {% for f in form %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}: </label>
+                <div>{{ f }}</div>
+                <div class="form-error">{{ f.errors }}</div>
+            </div>
+        {% endfor %}
+        <input type="submit" class="form-control btn btn-outline-dark mt-2" value="Зарегистрироваться">
+    </div>
+</form>
+
+{% endblock %}

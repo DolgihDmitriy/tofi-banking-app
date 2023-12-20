@@ -1,0 +1,77 @@
+.nav-link {
+    color: rgba(255, 255, 255, 0.55);
+    transition: all .4s;
+}
+
+.nav-link:hover {
+    color: rgba(255, 255, 255, 0.75);
+
+}
+
+.logo {
+    font-size: 30px;
+}
+
+.login-icon {
+}
+
+.w-40 {
+    width: 40% !important;
+}
+
+.w-90 {
+    width: 90% !important;
+}
+
+.min-vh-40 {
+    min-height: 40vh !important;
+}
+
+.account-header-row {
+    cursor: pointer;
+}
+
+@media (min-width: 1200px)
+{
+    .container {
+        max-width: 840px;
+    }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+
+body{
+	background-color: #D6D6DE;
+	font-family: 'Noto Sans', sans-serif;
+}
+
+.list-style-type-none {
+    list-style-type: none !important;
+}
+
+/* Custom styles for the range input */
+.form-range::-webkit-slider-thumb {
+    background-color: #cacaca; /* Цвет ползунка в активном состоянии в WebKit-браузерах */
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #cacaca; /* Цвет ползунка в активном состоянии в Firefox */
+}
+
+.form-range::-ms-thumb {
+    background-color: #cacaca; /* Цвет ползунка в активном состоянии в Microsoft Edge */
+}
+
+
+/* Цвет ползунка в активном состоянии (при нажатии) */
+.custom-range::-webkit-slider-thumb:active {
+    background-color: #616161;
+}
+
+.custom-range::-moz-range-thumb:active {
+    background-color: #616161;
+}
+
+.custom-range::-ms-thumb:active {
+    background-color: #616161;
+}

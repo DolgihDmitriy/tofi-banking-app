@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}
+{{ title }}
+{% endblock %}
+{% block css_block %}<link rel="stylesheet" href="{% static "css/bank-account.css" %}">{% endblock %}
+{% block content %}
+
+<h1 class="mt-4 border-bottom border-dark"><strong>ТофиБанк</strong></h1>
+<section class="d-flex flex-row bg-dark mt-3 p-4 rounded-3">
+  <img src="{% static "img/credit.png" %}" height=220 />
+  <div style="text-align: justify;" class="flex-grow-1 text-light p-3 ps-5 text-justify">
+    <h2 class="py-1">Система кредитования</h2>
+    Система кредитования - это механизм предоставления финансовых ресурсов одним лицом 
+    (кредитором) другому лицу (заемщику) с обязательством последующего возврата этих
+    ресурсов вместе с дополнительной суммой в виде процентов. Кредитование играет 
+    важную роль в современной экономике и финансовой системе, обеспечивая доступ к 
+    капиталу для физических и юридических лиц.
+  </div>
+</section>
+
+<section class="d-flex flex-row bg-dark mt-3 p-4 rounded-3">
+  <div style="text-align: justify;" class="flex-grow-1 text-light p-3 ps-5 text-justify">
+    <h2 class="py-1">Распределение бюджета</h2>
+    В банковской системе система распределения бюджета включает в себя процессы управления и распределения 
+    финансовых ресурсов внутри банка с целью обеспечения эффективного функционирования и достижения
+    стратегических целей. Важной частью этой системы является управление капиталом и расходование
+    средств на различные банковские операции. 
+  </div>
+  <img src="{% static "img/budget.png" %}" height=220 />
+</section>
+
+{% endblock %}

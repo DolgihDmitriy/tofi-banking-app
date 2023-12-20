@@ -1,0 +1,138 @@
+{% extends 'layout.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <h1 class='m-4'><strong>Оформление кредита</strong></h1>
+        <section class="mt-2 bg-dark text-light rounded-3 p-3">
+            <h3><strong>Перед подачей заявки проверьте все данные</strong></h3>
+            <div class="user-data-from fs-5">
+                <div>
+                    Имя: <strong>{{user.first_name}}</strong>
+                </div>
+                <div>
+                    Отчество: <strong>{{user.father_name}}</strong>
+                </div>
+                <div>
+                    Фамилия: <strong>{{user.last_name}}</strong>
+                </div>
+                <div>
+                    Номер телефона: <strong>+{{user.phone_number}}</strong>
+                </div>
+                <div>
+                    Серия и номер паспорта: <strong>{{user.identity_document_number}}</strong>
+                </div>
+                <div>
+                    Идентификационный номер: <strong>{{user.identity_number}}</strong>
+                </div>
+            </div>
+            <form action="{% url 'calculate_credit_dates' %}" method="post">
+                {% csrf_token %}
+                <div class="credit-block mt-4">
+                    <label for="creditSumRange" class="form-label h5"><strong>Сумма кредита (BYN)</strong></label>
+                    <input type="range" class="form-range" min="1000" max="100000" step="500" id="creditSumRange" value="2000">
+                    <ul class="d-flex justify-content-between list-style-type-none p-0 fs-6">
+                        <li>1000 BYN</li>
+                        <li>50000 BYN</li>
+                        <li>100000 BYN</li>
+                    </ul>
+                    <input class="form-control fw-bold fs-4" type="number" min="1000" step="100" max="100000" value="2000" name="credit_sum" id="creditSumInput">
+                </div>
+                <div class="term-block mt-4">
+                    <label for="creditTermRange" class="form-label h5"><strong>Срок кредита (мес.)</strong></label>
+                    <input type="range" class="form-range" min="6" max="120" step="1" id="creditTermRange" value="12">
+                    <ul class="d-flex justify-content-between list-style-type-none p-0 fs-6">
+                        <li>6 месяцев</li>
+                        <li>60 месяцев</li>
+                        <li>120 месяцев</li>
+                    </ul>
+                    <input class="form-control fw-bold fs-4" type="number" min="6" step="1" max="120" value="12" name="credit_term" id="creditTermInput">
+                </div>
+                <div class="interest-rate-block mt-4">
+                    <label for="creditInterestRateRange" class="form-label h5"><strong>Процентная ставка (%)</strong></label>
+                    <input type="range" class="form-range" min="6" max="31" step="1" id="creditInterestRateRange" value="12">
+                    <ul class="d-flex justify-content-between list-style-type-none p-0 fs-6">
+                        <li>6 %</li>
+                        <li>18 %</li>
+                        <li>31 %</li>
+                    </ul>
+                    <input class="form-control fw-bold fs-4" type="number" min="1" step="0.5" max="31" value="12" name="credit_interest_rate" id="creditInterestRateInput">
+                </div>
+                <div class="result-block mt-4">
+                    <span class="form-label h3"><strong>Ежемесячный платеж:</strong></span>
+                    <span class="form-label h2"><strong id="resultMonthlyPayment"></strong></span>
+                    <input type="hidden" id="resultMonthlyPaymentInput" name="monthly_payment" value="">
+                </div>
+                <input type="submit" class="form-control btn btn-outline-light mt-4" value="Отправить заявку на кредит">
+            </form>
+        </section>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        let creditSumRange = document.querySelector('#creditSumRange');
+        let creditSumInput = document.querySelector('#creditSumInput');
+
+        creditSumInput.addEventListener('input', (event) => {
+            creditSumRange.value = creditSumInput.value;
+            calculateMonthlyPayment();
+        });
+
+        creditSumRange.addEventListener('input', (event) => {
+            creditSumInput.value = event.target.value;
+            calculateMonthlyPayment();
+        });
+
+        let creditTermRange = document.querySelector('#creditTermRange');
+        let creditTermInput = document.querySelector('#creditTermInput');
+
+        creditTermInput.addEventListener('input', (event) => {
+            creditTermRange.value = creditTermInput.value;
+            calculateMonthlyPayment();
+        });
+
+        creditTermRange.addEventListener('input', (event) => {
+            creditTermInput.value = event.target.value;
+            calculateMonthlyPayment();
+        });
+
+        
+        let creditInterestRateRange = document.querySelector('#creditInterestRateRange');
+        let creditInterestRateInput = document.querySelector('#creditInterestRateInput');
+
+        creditInterestRateInput.addEventListener('input', (event) => {
+            creditInterestRateRange.value = creditInterestRateInput.value;
+            calculateMonthlyPayment();
+        });
+
+        creditInterestRateRange.addEventListener('input', (event) => {
+            creditInterestRateInput.value = event.target.value;
+            calculateMonthlyPayment();
+        });
+
+        
+        let resultMonthlyPayment = document.querySelector('#resultMonthlyPayment');
+        
+        let creditSum, interestRate, creditTerm;
+        
+        function calculateMonthlyPayment() {
+            
+            creditSum = Number(creditSumInput.value);
+            interestRate = Number(creditInterestRateInput.value);
+            creditTerm = Number(creditTermInput.value);
+            monthlyInterestRate = interestRate / (100 * 12);
+
+            monthlyPayment = creditSum * (monthlyInterestRate / (1 - (1 + monthlyInterestRate) ** (-creditTerm)));
+            monthlyPayment = Math.round(monthlyPayment * 100) / 100;
+            resultMonthlyPayment.textContent = monthlyPayment.toFixed(2) + " BYN";
+            resultMonthlyPaymentInput.value = monthlyPayment.toFixed(2)
+        }
+
+        calculateMonthlyPayment();
+
+    </script>
+{% endblock %}

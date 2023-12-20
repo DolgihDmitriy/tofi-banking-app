@@ -1,0 +1,192 @@
+{% extends 'layout.html' %}
+{% load humanize %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if cards %}
+            <div class="d-flex justify-content-center">
+                <div class="btn-group mt-4" role="group" aria-label="Basic radio toggle button group">
+                    {% for card in cards %}
+                        <a href="{% url 'transactions' forloop.counter %}" class="btn {% if forloop.counter == active_card %} btn-dark {% else %} btn-outline-dark {% endif %}" name="btnradio" id="btnradio{{ forloop.counter }}">
+                            Карта № {{ forloop.counter }}
+                        </a>
+                        {% comment %} <small for="btnradio{{ forloop.counter }}">{{ card.number }}</small> {% endcomment %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% for card in cards %}
+                {% if forloop.counter == active_card %}
+                    <div class="d-flex justify-content-around mt-4 align-items-start">
+                        <div class="d-flex flex-column">
+                            <div class="payment-card bg-dark bg-gradient text-light d-flex flex-column p-3 rounded-3">
+                                <div class="d-flex flex-row justify-content-between">
+                                    <i class="fa-regular fa-credit-card h2"></i>
+                                    <div class="flex-grow-1 ps-3 pt-1">
+                                        <strong>ТофиБанк</strong>
+                                    </div>
+                                    <div class="dropdown">
+                                        <a class="decoration-none text-light" id="dropdownMenuCardButton" href="#" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuCardButton">
+                                            <li><a class="dropdown-item" href="#">Перевод средств</a></li>
+                                            <li><a class="dropdown-item" href="#">Заблокировать карту</a></li>
+                                            <li><a class="dropdown-item" href="#">Распределить бюджет</a></li>
+                                            <li><a class="dropdown-item" href="#">Оплатить кредит</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <h2 class="py-2 text-center">
+                                    {{ card.account.balance }} BYN
+                                </h2>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small id="card_number" class="pt-3 card_number">
+                                            {{ card.number }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <small>
+                                            <strong>Expiry date:</strong> {{ card.expire_date.month }}/{{card.expire_date.year}}
+                                        </small>
+                                    </div>
+                                    <div class="col-sm-6 text-end">
+                                        <small>
+                                            <strong>Name:</strong> <span class="">{{ card.first_name }} {{ card.last_name }}</span>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <section class="mt-5 bg-light py-4 px-3 rounded-2">
+                                <h4><strong>Перевод средств</strong></h4>
+                                <form action="{% url "make_transaction" %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="d-flex flex-column text-muted">
+                                        <input type="hidden" name="sender_card" value="{{ card.number }}">
+                                        <label>Номер карты получателя: </label>
+                                        <input class="form-control" type="text" name="card_number" placeholder="Номер карты получателя">
+                                        <label class="mt-3">Сумма перевода: </label>
+                                        <input class="form-control" type="number" step=".01" name="sum" placeholder="0.00">
+                                        <input class="form-control btn-dark mt-3" type="submit">
+                                    </div>
+                                </form>
+                            </section>
+                        </div>
+                        <section class="d-flex flex-column w-40 h-100">
+                            <div class="bg-dark text-light">
+                                <h5 class="p-1 rounded-2 mb-0 text-center"><strong>Последние транзакции</strong></h5>
+                            </div>
+                            <div class="bg-light min-vh-40 p-2">
+                                {% for transaction in transactions %}
+                                    <a href="#" class="list-group-item list-group-item-action py-3" aria-current="true">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                        <strong class="mb-1">-{{ transaction.amount }} BYN</strong>
+                                        <small>{{ transaction.date|timesince }}</small>
+                                        </div>
+                                        <div class="col-10 mb-1"><strong class="card_number">{{ transaction.card_from.number }}</strong></div>
+                                        <input name="transactionId" type="hidden" value="{{ transaction.id }}">
+                                        <select name="categorySelects" class="form-select" aria-label="Default select example">
+                                            <option value="-1">Категория траты</option>
+                                            {% for category in categories %}
+
+                                                <option value="{{ category.id }}" {% if transaction.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </section>
+                    </div>
+                    <section class="distribution mt-4">
+                        <table class="table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Категория</th>
+                                    <th scope="col">Остаток</th>
+                                    <th scope="col">Общая сумма</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}    
+                                    <tr class="table-light">
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ category.name }}</td>
+                                        <td>{{ category.current_sum }}</td>
+                                        <td>{{ category.amount }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'delete_category' %}" class="">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="category_id" value="{{ category.id }}">
+                                                <button class="btn btn-outline-danger btn-close"></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <form method="post" action="{% url 'add_category' %}">
+                            {% csrf_token %}
+                            <input class="form-control" name="category_name" type="text" placeholder="Категория">
+                            <input class="form-control" name="category_sum" type="number" placeholder="Сумма">
+                            <input class="form-control btn btn-dark" type="submit" value="Добавить категорию">
+                        </form>
+                    </section>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+        let cards_number = document.querySelectorAll(".card_number");
+        for (let i = 0; i < cards_number.length; i++) {
+            cards_number[i].innerText = cards_number[i].innerText.replace(/\d{8}$/, function(match) {
+                return '*'.repeat(match.length);
+            });
+        }
+
+        let categorySelects = document.querySelectorAll("select[name='categorySelects']");
+        let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        previousValue = new Array(categorySelects.length)
+        for (let i = 0; i < categorySelects.length; i++) {
+            previousValue[i] = categorySelects[i].value;
+            categorySelects[i].addEventListener('change', (event) => {
+
+                console.log(previousValue[i])
+
+                let parentAnchor = event.target.closest('a');
+                let transactionId = parentAnchor.querySelector('input[name="transactionId"]');
+
+                $.ajax({
+                    headers: {'X-CSRFToken': csrftoken},
+                    url: '/category/add-transaction',
+                    type: 'POST',
+                    data: {
+                        'prev_category_id': previousValue[i],
+                        'category_id': categorySelects[i].value,
+                        'transaction_id': transactionId.value,
+                    },
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(xhr, status, error) {
+                    }
+
+                });
+
+                previousValue[i] = categorySelects[i].value;
+            });
+        }
+    </script>
+{% endblock %}

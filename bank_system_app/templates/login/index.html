@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="auth-form mt-5">
+            <h6 class="mb-4">Нет аккаунта?<span class="float-end"><a class="text-decoration-none text-dark" href="{% url 'register' %}">Зарегистрироваться</a></span></h6>
+            <div class="form-error">{{ form.non_field_errors }}</div>
+            {% for f in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}: </label>
+                    <div>{{ f }}</div>
+                    <div class="form-error">{{ f.errors }}</div>
+                </div>
+                {% if forloop.counter == 2 %}
+                    <button class='form-control btn btn-outline-dark' id="sendSecureCode" type='button'>Отправить код безопасности</button>
+                    <div class="mt-2"><span class='text-success' id='sentStatus'></span><div>
+                {% endif %}
+            {% endfor %}
+            {% comment %} <label class="form-label mt-4" for="secureCode">Код безопасности: </label>
+            <input id='secureCode' name='secure_code' class="form-control" type='text' placeholder="Код безопасности"> {% endcomment %}
+            <input type="submit" class="form-control btn btn-outline-dark mt-2" value="Войти">
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    let sendSecureCodeBtn = document.querySelector('#sendSecureCode');
+    let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    let username = document.querySelector('#id_username');
+    let sentStatus = document.querySelector('#sentStatus');
+
+    sendSecureCodeBtn.onclick = function() {
+
+        $.ajax({
+            headers: {'X-CSRFToken': csrftoken},
+            url: '/login/secure-code',
+            type: 'POST',
+            data: {
+                'username': username.value,
+            },
+            success: function(response) {
+                console.log(response);
+                sentStatus.textContent = "Код безопасности выслан на почту.";
+            },
+            error: function(xhr, status, error) {
+                sentStatus.textContent = "Пользователь с таким логином не найден";
+            }
+
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        {% if accounts %}
+            <div class="container">
+                {% for account in accounts %}
+                    <div class="row mt-2 account-header-row" name="accounts" id="{{ account.id }}">
+                        <div class="col-8 bg-dark text-muted text-center p-2"><span class="text-light">AN: </span>{{ account.account_number }}</div>
+                        <div class="col-4 bg-dark text-secondary p-2 text-center">{{ account.balance }}<span class="text-light"> BYN</span></div>
+                    </div>
+                    {% if account.cards.all %}
+                        {% for card in account.cards.all %}
+                            <div class="row account-header-row bg-light" name="cards" id="{{ card.id }}">
+                                <div class="col-8 text-center p-2"><i class="fa-solid fa-credit-card"></i><span class="text-dark"> Номер: </span><span class='text-muted'>{{ card.number }}</span></div>
+                                <div class="col-4 p-2 text-center"><span class="text-muted">{{ card.expire_date.month }}/{{ card.expire_date.year }}</span></div>
+                            </div>
+                        {% endfor %}
+                        <form action="{% url 'create_card' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="account_id" value="{{ account.id }}">
+                            <div class="row account-header-row bg-light text-dark align-items-center py-2" name="cards" id="{{ card.id }}">
+                                <div class="text-center"><button type="submit" class="text-decoration-none link-dark btn-link btn p-0 shadow-none">Оформить новую карту</button></div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'create_card' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="account_id" value="{{ account.id }}">
+                            <div class="row account-header-row bg-light text-dark align-items-center py-2" name="cards" id="{{ card.id }}">
+                                <div class="col-8 text-center p-2">У вас нет банковских карт на этом счете</div>
+                                <div class="col-4 p-2"><button type="submit" class="text-decoration-none link-warning btn-link btn p-0 shadow-none">Оформить банковскую карту</button></div>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% endfor %}
+                <div class="mt-3 alert alert-info">
+                    <form action="{% url 'create_account' %}" method='post'>
+                        {% csrf_token %}
+                        <p class="d-flex align-items-center">Вы можете&nbsp;<button type='submit' class='p-0 border-none shadow-none btn btn-link text-black-50 text-decoration-none' id='createNewAccount'>открыть новый счет</button>.</p>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="mt-3 alert alert-info">
+                <form action="{% url 'create_account' %}" method='post'>
+                    {% csrf_token %}
+                    <p>У вас нет зарегистрированных счетов.</p>
+                    <p class="d-flex align-items-center">Вы можете&nbsp;<button type='submit' class='p-0 border-none shadow-none btn btn-link text-black-50 text-decoration-none' id='createNewAccount'>открыть новый счет</button>.</p>
+                </form>
+            </div>
+        {% endif %}
+
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+    <script>
+        let accounts = document.querySelectorAll('[name="accounts"]')
+    </script>
+{% endblock %}

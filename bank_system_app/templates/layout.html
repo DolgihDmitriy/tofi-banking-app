@@ -1,0 +1,68 @@
+{% load static %}
+
+<html lang="en" xmlns="">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static "lib/css/bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "lib/css/all.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    {% block css_block %}{% endblock %}
+</head>
+<body>
+    <header class="">
+        <nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
+            <div class="container">
+              <a class="navbar-brand d-md-none" href="#">
+                <svg class="bi" width="24" height="24"><use xlink:href="#aperture"></use></svg>
+                Aperture
+              </a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="#offcanvas" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="offcanvas offcanvas-end" tabindex="-1" id="#offcanvas" aria-labelledby="#offcanvasLabel">
+                <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="#offcanvasLabel">Aperture</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <ul class="navbar-nav flex-grow-1 justify-content-around">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">
+                        <i class="fa-solid fa-building-columns logo"></i>
+                    </a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'transactions' %}"><i class="fa-solid fa-money-bill-transfer"></i> Транзакции</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'accounts' %}"><i class="fa-solid fa-money-check-dollar"></i> Счета</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'credit' %}"><i class="fa-solid fa-hand-holding-dollar"></i> Кредиты</a></li>
+                    {% comment %} <li class="nav-item"><a class="nav-link" href="#"><i class="fa-solid fa-chart-line"></i> Статистика</a></li> {% endcomment %}
+
+                    {% if user.is_authenticated %}
+                      <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="m-0 d-flex align-items-center nav-link">
+                          {% csrf_token %}
+                          <i class="fa-solid fa-right-from-bracket"></i>&nbsp;
+                          <button class="p-0 btn btn-link nav-link" type="submit">Завершить сессию</button>
+                        </form>
+                      </li>
+                    {% else %}
+                      <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                          <i class="fa-solid fa-key login-icon"></i>&nbsp;Войти
+                        </a>
+                      </li> 
+                    {% endif %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </nav>
+    </header>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+<script src="{% static "lib/js/jquery-3.7.1.min.js" %}"></script>
+<script src="{% static "lib/js/bootstrap.bundle.min.js" %}"></script>
+<script src="{% static "lib/js/all.min.js" %}"></script>
+<script src="{% static "js/script.js" %}"></script>
+{% block script %}{% endblock %}
+</html>
